@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DatabaseMigrationSettings" lastSelectedDirectory="auth-service/src/main/resources" />
+  <component name="PersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit moduleName="asyncarch.auth-service.main" name="Default">
+        <packages>
+          <package value="org.example.auth" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="asyncarch.task-management-service.main" name="Default">
+        <packages>
+          <package value="org.example.task.management" />
+        </packages>
+      </persistence-unit>
+    </persistence-units>
+  </component>
+</project>

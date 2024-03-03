@@ -1,0 +1,65 @@
+version: '3.8'
+services:
+  config:
+    image: 'docker.io/library/config-service:0.0.1-SNAPSHOT'
+    hostname: config
+    networks:
+      - internal
+    ports:
+      - 8080:8080
+  auth:
+    image: 'docker.io/library/auth-service:0.0.1-SNAPSHOT'
+    networks:
+      - internal
+    ports:
+      - 8082:8082
+    depends_on:
+      - config
+      - kafka
+  tasks:
+    image: 'docker.io/library/task-management-service:0.0.1-SNAPSHOT'
+    networks:
+      - internal
+    ports:
+      - 8083:8083
+    depends_on:
+      - db
+      - config
+      - kafka
+  db:
+    image: postgres:16
+    restart: always
+    hostname: rdb
+    environment:
+      POSTGRES_PASSWORD: asyncarch2024
+      POSTGRES_USER: asyncarch
+    ports:
+      - 5432:5432
+    networks:
+      - internal
+  zookeeper:
+    image: wurstmeister/zookeeper
+    hostname: zookeeper
+    ports:
+      - 2181:2181
+    networks:
+      - internal
+  kafka:
+    image: wurstmeister/kafka
+    hostname: kafka
+    ports:
+      - 9092:9092
+      - 9093:9093
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    networks:
+      - internal
+
+networks:
+  internal:
