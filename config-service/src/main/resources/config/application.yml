@@ -1,0 +1,26 @@
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.UUIDDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        "[spring.json.trusted.packages]": "*"
+        "[spring.json.remove.type.headers]": false
+      auto-offset-reset: earliest
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.UUIDSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    streams:
+      properties:
+        "[spring.json.trusted.packages]": "*"
+        "[spring.json.remove.type.headers]": false
+        "[default.key.serde]": org.apache.kafka.common.serialization.Serdes$UUIDSerde
+        "[default.value.serde]": org.springframework.kafka.support.serializer.JsonSerde
+  datasource:
+    url: jdbc:postgresql://rdb/asyncarch
+    username: asyncarch
+    password: asyncarch2024
+  jpa.hibernate.ddl-auto: validate
+
+security.jwt.secret: 'very_secret_secret'
