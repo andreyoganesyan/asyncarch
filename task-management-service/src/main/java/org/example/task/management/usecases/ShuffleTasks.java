@@ -1,7 +1,8 @@
 package org.example.task.management.usecases;
 
 import lombok.RequiredArgsConstructor;
-import org.example.models.tasks.TaskAssignedEvent;
+import org.example.models.tasks.TaskAssignedEventV1;
+import org.example.models.tasks.TaskTopics;
 import org.example.task.management.db.TaskEntity;
 import org.example.task.management.db.TaskEntityRepository;
 import org.example.task.management.db.UserEntity;
@@ -11,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -22,7 +24,7 @@ public class ShuffleTasks {
 
     private final UserEntityRepository userEntityRepository;
     private final TaskEntityRepository taskEntityRepository;
-    private final KafkaTemplate<UUID, TaskAssignedEvent> kafkaTemplate;
+    private final KafkaTemplate<UUID, TaskAssignedEventV1> kafkaTemplate;
 
     @PostMapping("/task/shuffle")
     public void shuffleOpenTasks() {
@@ -35,9 +37,13 @@ public class ShuffleTasks {
         }
         List<TaskEntity> savedTasks = taskEntityRepository.saveAll(openTasks);
         for (var task : savedTasks) {
-            kafkaTemplate.send(TaskAssignedEvent.TOPIC,
+            // batching is handled by KafkaTemplate under the hood
+            kafkaTemplate.send(TaskTopics.TASK_ASSIGNED,
                     task.getId(),
-                    new TaskAssignedEvent(task.getId(), task.getAssignee().getId())
+                    new TaskAssignedEventV1()
+                            .withTaskId(task.getId())
+                            .withAssigneeId(task.getAssignee().getId())
+                            .withTimestamp(Instant.now())
             );
         }
     }

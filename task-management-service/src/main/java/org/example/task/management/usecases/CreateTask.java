@@ -1,9 +1,10 @@
 package org.example.task.management.usecases;
 
 import lombok.RequiredArgsConstructor;
-import org.example.models.tasks.Task;
-import org.example.models.tasks.TaskAssignedEvent;
-import org.example.models.tasks.TaskCudEvent;
+import org.example.models.tasks.TaskAssignedEventV1;
+import org.example.models.tasks.TaskCreatedEventV1;
+import org.example.models.tasks.TaskTopics;
+import org.example.models.tasks.TaskV1;
 import org.example.task.management.db.*;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,19 +28,25 @@ public class CreateTask {
     private final KafkaTemplate<UUID, Object> kafkaTemplate;
 
     @PostMapping("/task")
-    public TaskEntityDto createNewTask(@RequestBody Task taskToCreate) {
+    public TaskEntityDto createNewTask(@RequestBody TaskV1 taskToCreate) {
         var newTask = new TaskEntity();
-        newTask.setId(Optional.ofNullable(taskToCreate.id()).orElse(UUID.randomUUID()));
-        newTask.setDescription(taskToCreate.description());
+        newTask.setId(Optional.ofNullable(taskToCreate.getId()).orElse(UUID.randomUUID()));
+        newTask.setDescription(taskToCreate.getDescription());
         newTask.setAssignee(getRandomAssignee());
 
         var savedTask = taskEntityRepository.save(newTask);
-        kafkaTemplate.send(TaskCudEvent.TOPIC,
+        kafkaTemplate.send(TaskTopics.TASK_STREAMING,
                 savedTask.getId(),
-                new TaskCudEvent(TaskCudEvent.EventType.CREATED, new Task(savedTask.getId(), savedTask.getDescription())));
-        kafkaTemplate.send(TaskAssignedEvent.TOPIC,
+                new TaskCreatedEventV1()
+                        .withTask(new TaskV1()
+                                .withId(savedTask.getId())
+                                .withDescription(savedTask.getDescription())));
+        kafkaTemplate.send(TaskTopics.TASK_ASSIGNED,
                 savedTask.getId(),
-                new TaskAssignedEvent(savedTask.getId(), savedTask.getAssignee().getId()));
+                new TaskAssignedEventV1()
+                        .withTaskId(savedTask.getId())
+                        .withAssigneeId(savedTask.getAssignee().getId())
+                        .withTimestamp(Instant.now()));
 
         return new TaskEntityDto(
                 savedTask.getId(),

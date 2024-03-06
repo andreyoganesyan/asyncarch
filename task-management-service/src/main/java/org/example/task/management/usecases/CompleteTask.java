@@ -1,8 +1,9 @@
 package org.example.task.management.usecases;
 
 import lombok.RequiredArgsConstructor;
-import org.example.models.auth.User;
-import org.example.models.tasks.TaskCompletedEvent;
+import org.example.auth.provider.UserPrincipal;
+import org.example.models.tasks.TaskCompletedEventV1;
+import org.example.models.tasks.TaskTopics;
 import org.example.task.management.db.TaskEntity;
 import org.example.task.management.db.TaskEntityDto;
 import org.example.task.management.db.TaskEntityRepository;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @RestController
@@ -23,7 +25,7 @@ import java.util.UUID;
 @PreAuthorize("isAuthenticated()")
 public class CompleteTask {
     private final TaskEntityRepository taskEntityRepository;
-    private final KafkaTemplate<UUID, TaskCompletedEvent> kafkaTemplate;
+    private final KafkaTemplate<UUID, TaskCompletedEventV1> kafkaTemplate;
 
     @PostMapping("/task/{id}/complete")
     @Transactional
@@ -33,7 +35,7 @@ public class CompleteTask {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (!(principal instanceof User user) || !task.getAssignee().getId().equals(user.id())) {
+        if (!(principal instanceof UserPrincipal user) || !task.getAssignee().getId().equals(user.id())) {
             throw HttpExceptionUtil.create(HttpStatus.FORBIDDEN);
         }
 
@@ -44,9 +46,12 @@ public class CompleteTask {
         task.setStatus(TaskEntity.Status.COMPLETED);
         var savedTask = taskEntityRepository.save(task);
         kafkaTemplate.send(
-                TaskCompletedEvent.TOPIC,
+                TaskTopics.TASK_COMPLETED,
                 savedTask.getId(),
-                new TaskCompletedEvent(savedTask.getId(), savedTask.getAssignee().getId())
+                new TaskCompletedEventV1()
+                        .withTaskId(savedTask.getId())
+                        .withCompletedByUserId(savedTask.getAssignee().getId())
+                        .withTimestamp(Instant.now())
         );
 
         return new TaskEntityDto(savedTask.getId(), savedTask.getDescription(), savedTask.getStatus(), savedTask.getAssignee().getId());

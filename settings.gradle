@@ -2,6 +2,7 @@ rootProject.name = 'asyncarch'
 include 'config-service'
 include 'auth-service'
 include 'auth-provider-spring-boot-starter'
-include 'common-models'
+include 'schema-registry'
 include 'task-management-service'
+include 'event-validator-spring-boot-starter'
 

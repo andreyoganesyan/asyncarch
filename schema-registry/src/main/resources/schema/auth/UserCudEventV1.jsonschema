@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "javaType": "org.example.models.auth.UserCudEventV1",
+  "type": "object",
+  "properties": {
+    "eventType": {
+      "enum": ["CREATED", "UPDATED", "DELETED"]
+    },
+    "user": {
+      "$ref": "UserV1.jsonschema"
+    }
+  },
+  "required": ["eventType", "user"]
+}

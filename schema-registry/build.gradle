@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id("org.jsonschema2pojo") version "1.2.1"
+}
+
+group = 'org.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '21'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2023.0.0")
+}
+
+jsonSchema2Pojo {
+    source = files("${sourceSets.main.output.resourcesDir}/schema")
+    removeOldOutput = true
+    includeAdditionalProperties = false
+    includeHashcodeAndEquals = false
+    generateBuilders = true
+    includeToString = false
+    includeJsr303Annotations = true
+    useJakartaValidation = true
+    annotationStyle = 'none'
+    dateTimeType = 'java.time.Instant'
+}
+
+dependencies {
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+}
+

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "javaType": "org.example.models.tasks.TaskV1",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "required": ["id", "description"]
+}

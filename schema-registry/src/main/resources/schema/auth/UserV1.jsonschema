@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "javaType": "org.example.models.auth.UserV1",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "email": {
+      "type": "string"
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "role": {
+      "enum": ["ROLE_ADMIN", "ROLE_ACCOUNTANT", "ROLE_EMPLOYEE"]
+    }
+  },
+  "required": ["id", "email", "displayName", "role"]
+}

@@ -5,5 +5,6 @@ CREATE TABLE auth."user"
     password     VARCHAR(255) NOT NULL,
     display_name VARCHAR(255) NOT NULL,
     role         VARCHAR(255) NOT NULL,
-    CONSTRAINT pk_user PRIMARY KEY (id)
+    CONSTRAINT pk_user PRIMARY KEY (id),
+    CONSTRAINT unique_email UNIQUE (email)
 );
