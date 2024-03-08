@@ -1,0 +1,7 @@
+server.port: 8081
+spring:
+  jpa:
+    properties:
+      hibernate.default_schema: accounting
+  flyway:
+    default-schema: accounting
