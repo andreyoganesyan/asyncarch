@@ -3,7 +3,6 @@ package org.example.auth;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.models.auth.User;
 
 import java.util.UUID;
 
@@ -16,7 +15,7 @@ public class UserEntity {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false)
@@ -27,5 +26,9 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private User.Role role;
+    private Role role;
+
+    public enum Role {
+        ROLE_ADMIN, ROLE_ACCOUNTANT, ROLE_EMPLOYEE
+    }
 }

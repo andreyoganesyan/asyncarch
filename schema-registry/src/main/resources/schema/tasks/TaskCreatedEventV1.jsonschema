@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "javaType": "org.example.models.tasks.TaskCreatedEventV1",
+  "properties": {
+    "task": {
+      "$ref": "TaskV1.jsonschema"
+    }
+  },
+  "required": ["task"]
+}

@@ -1,7 +1,7 @@
 package org.example.task.management.usecases;
 
 import lombok.RequiredArgsConstructor;
-import org.example.models.auth.User;
+import org.example.auth.provider.UserPrincipal;
 import org.example.task.management.db.TaskEntityDto;
 import org.example.task.management.db.TaskEntityRepository;
 import org.example.task.management.util.HttpExceptionUtil;
@@ -22,7 +22,7 @@ public class ViewAssignedTasks {
     @GetMapping("/task/")
     public List<TaskEntityDto> getAssignedTasks() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!(principal instanceof User user)) {
+        if (!(principal instanceof UserPrincipal user)) {
             throw HttpExceptionUtil.create(HttpStatus.UNAUTHORIZED);
         }
 

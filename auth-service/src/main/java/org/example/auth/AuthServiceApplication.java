@@ -1,7 +1,7 @@
 package org.example.auth;
 
 import org.apache.kafka.clients.admin.NewTopic;
-import org.example.models.auth.UserCudEvent;
+import org.example.models.auth.AuthTopics;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -15,6 +15,6 @@ public class AuthServiceApplication {
 
     @Bean
     public NewTopic userStreamingTopic() {
-        return new NewTopic(UserCudEvent.TOPIC, 1, (short) 1);
+        return new NewTopic(AuthTopics.USER_STREAMING, 1, (short) 1);
     }
 }

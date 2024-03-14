@@ -3,8 +3,9 @@ package org.example.auth;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import lombok.RequiredArgsConstructor;
-import org.example.models.auth.User;
-import org.example.models.auth.UserCudEvent;
+import org.example.models.auth.AuthTopics;
+import org.example.models.auth.UserCudEventV1;
+import org.example.models.auth.UserV1;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -23,10 +24,10 @@ public class AuthServiceController {
     private final String jwtSecret;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserEntityRepository userEntityRepository;
-    private final KafkaTemplate<UUID, UserCudEvent> kafkaTemplate;
+    private final KafkaTemplate<UUID, UserCudEventV1> kafkaTemplate;
 
     @PostMapping
-    public UserCudEvent createUser(@RequestBody UserEntityDto newUser) {
+    public UserCudEventV1 createUser(@RequestBody UserEntityDto newUser) {
         var userEntity = new UserEntity();
         userEntity.setId(Optional.ofNullable(newUser.id()).orElse(UUID.randomUUID()));
         userEntity.setRole(newUser.role());
@@ -35,13 +36,19 @@ public class AuthServiceController {
         userEntity.setPassword(passwordEncoder.encode(newUser.password()));
 
         var savedUser = userEntityRepository.save(userEntity);
-        var userCreatedEvent = new UserCudEvent(UserCudEvent.EventType.CREATED, new User(savedUser.getId(), savedUser.getEmail(), savedUser.getDisplayName(), savedUser.getRole()));
-        kafkaTemplate.send(UserCudEvent.TOPIC, savedUser.getId(), userCreatedEvent);
+        var userCreatedEvent = new UserCudEventV1()
+                .withEventType(UserCudEventV1.EventType.CREATED)
+                .withUser(new UserV1()
+                        .withId(savedUser.getId())
+                        .withEmail(savedUser.getEmail())
+                        .withDisplayName(savedUser.getDisplayName())
+                        .withRole(mapRoleV1(savedUser)));
+        kafkaTemplate.send(AuthTopics.USER_STREAMING, savedUser.getId(), userCreatedEvent);
         return userCreatedEvent;
     }
 
     @PutMapping
-    public UserCudEvent updateUser(@RequestBody UserEntityDto userToUpdate) {
+    public UserCudEventV1 updateUser(@RequestBody UserEntityDto userToUpdate) {
         var existingUser = userEntityRepository.findById(userToUpdate.id())
                 .orElseThrow(() -> HttpClientErrorException.create(HttpStatus.NOT_FOUND, "Not Found", null, null, null));
 
@@ -56,18 +63,30 @@ public class AuthServiceController {
                 .orElse(existingUser.getRole()));
         var savedUser = userEntityRepository.save(existingUser);
 
-        var userUpdatedEvent = new UserCudEvent(UserCudEvent.EventType.UPDATED, new User(savedUser.getId(), savedUser.getEmail(), savedUser.getDisplayName(), savedUser.getRole()));
-        kafkaTemplate.send(UserCudEvent.TOPIC, savedUser.getId(), userUpdatedEvent);
+        var userUpdatedEvent = new UserCudEventV1()
+                .withEventType(UserCudEventV1.EventType.UPDATED)
+                .withUser(new UserV1()
+                        .withId(savedUser.getId())
+                        .withEmail(savedUser.getEmail())
+                        .withDisplayName(savedUser.getDisplayName())
+                        .withRole(mapRoleV1(savedUser)));
+        kafkaTemplate.send(AuthTopics.USER_STREAMING, savedUser.getId(), userUpdatedEvent);
         return userUpdatedEvent;
     }
 
     @DeleteMapping
-    public UserCudEvent deleteUser(@RequestBody UserEntityDto userToDelete) {
+    public UserCudEventV1 deleteUser(@RequestBody UserEntityDto userToDelete) {
         var existingUser = userEntityRepository.findById(userToDelete.id())
                 .orElseThrow(() -> HttpClientErrorException.create(HttpStatus.NOT_FOUND, "Not Found", null, null, null));
         userEntityRepository.delete(existingUser);
-        var userDeletedEvent = new UserCudEvent(UserCudEvent.EventType.DELETED, new User(existingUser.getId(), existingUser.getEmail(), existingUser.getDisplayName(), existingUser.getRole()));
-        kafkaTemplate.send(UserCudEvent.TOPIC, existingUser.getId(), userDeletedEvent);
+        var userDeletedEvent = new UserCudEventV1()
+                .withEventType(UserCudEventV1.EventType.DELETED)
+                .withUser(new UserV1()
+                        .withId(existingUser.getId())
+                        .withEmail(existingUser.getEmail())
+                        .withDisplayName(existingUser.getDisplayName())
+                        .withRole(mapRoleV1(existingUser)));
+        kafkaTemplate.send(AuthTopics.USER_STREAMING, existingUser.getId(), userDeletedEvent);
         return userDeletedEvent;
     }
 
@@ -86,5 +105,13 @@ public class AuthServiceController {
     }
 
     public record TokenResponse(String accessToken) {
+    }
+
+    private UserV1.Role mapRoleV1(UserEntity user) {
+        return switch (user.getRole()) {
+            case ROLE_ADMIN -> UserV1.Role.ROLE_ADMIN;
+            case ROLE_EMPLOYEE -> UserV1.Role.ROLE_EMPLOYEE;
+            case ROLE_ACCOUNTANT -> UserV1.Role.ROLE_ACCOUNTANT;
+        };
     }
 }

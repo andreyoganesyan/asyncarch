@@ -3,7 +3,8 @@ package org.example.task.management.db;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.models.auth.User;
+import org.example.auth.provider.UserPrincipal;
+import org.example.models.auth.UserV1;
 
 import java.util.UUID;
 
@@ -24,7 +25,7 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private User.Role role;
+    private UserPrincipal.Role role;
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
