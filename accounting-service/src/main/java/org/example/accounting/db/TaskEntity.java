@@ -21,10 +21,10 @@ public class TaskEntity {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "assignment_price")
+    @Column(name = "assignment_price", nullable = false)
     private Integer assignmentPrice;
 
-    @Column(name = "completion_price")
+    @Column(name = "completion_price", nullable = false)
     private Integer completionPrice;
 
 }

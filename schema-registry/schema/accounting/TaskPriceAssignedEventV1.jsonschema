@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "javaType": "org.example.models.accounting.TaskPriceAssignedEventV1",
+  "properties": {
+    "taskId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "assignmentPrice": {
+      "type": "integer"
+    },
+    "completionPrice": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "taskId",
+    "assignmentPrice",
+    "completionPrice"
+  ]
+}
