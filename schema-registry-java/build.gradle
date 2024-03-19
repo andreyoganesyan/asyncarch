@@ -24,6 +24,14 @@ ext {
     set('springCloudVersion', "2023.0.0")
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDirs += ["$rootDir/schema-registry"]
+        }
+    }
+}
+
 jsonSchema2Pojo {
     source = files("${sourceSets.main.output.resourcesDir}/schema")
     removeOldOutput = true

@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "javaType": "org.example.models.accounting.PaymentTransactionAppliedEventV1",
+  "properties": {
+    "transactionId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "debit": {
+      "type": "integer"
+    },
+    "credit": {
+      "type": "integer"
+    },
+    "accountId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "type": {
+      "enum": [
+        "INTERNAL_BALANCE_CHANGE",
+        "PAYOUT"
+      ]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "transactionId",
+    "debit",
+    "credit",
+    "accountId",
+    "type",
+    "timestamp"
+  ]
+}

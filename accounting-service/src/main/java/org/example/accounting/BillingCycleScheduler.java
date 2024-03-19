@@ -14,7 +14,7 @@ public class BillingCycleScheduler {
 
     private final CloseBillingCyclesCommand closeBillingCyclesCommand;
 
-    @Scheduled(cron = "0 1 * * *", zone = "UTC")
+    @Scheduled(cron = "0 0 1 * * *", zone = "UTC")
     public void closeAllBillingCycles() {
         LocalDate yesterday = LocalDate.now(ZoneId.of("UTC")).minusDays(1);
         closeBillingCyclesCommand.executeFor(yesterday);

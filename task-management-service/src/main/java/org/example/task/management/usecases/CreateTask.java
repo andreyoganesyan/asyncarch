@@ -1,10 +1,7 @@
 package org.example.task.management.usecases;
 
 import lombok.RequiredArgsConstructor;
-import org.example.models.tasks.TaskAssignedEventV1;
-import org.example.models.tasks.TaskCreatedEventV1;
-import org.example.models.tasks.TaskTopics;
-import org.example.models.tasks.TaskV1;
+import org.example.models.tasks.*;
 import org.example.task.management.db.*;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,9 +38,9 @@ public class CreateTask {
                         .withTask(new TaskV1()
                                 .withId(savedTask.getId())
                                 .withDescription(savedTask.getDescription())));
-        kafkaTemplate.send(TaskTopics.TASK_ASSIGNED,
+        kafkaTemplate.send(TaskTopics.TASK_CREATED,
                 savedTask.getId(),
-                new TaskAssignedEventV1()
+                new TaskCreatedEventV2()
                         .withTaskId(savedTask.getId())
                         .withAssigneeId(savedTask.getAssignee().getId())
                         .withTimestamp(Instant.now()));

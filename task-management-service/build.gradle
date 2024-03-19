@@ -21,7 +21,7 @@ ext {
 
 dependencies {
     implementation project(':auth-provider-spring-boot-starter')
-    implementation project(':schema-registry')
+    implementation project(':schema-registry-java')
     implementation project(':event-validator-spring-boot-starter')
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'

@@ -18,20 +18,20 @@ public class BillingCycleEntity {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "account_id")
+    @Column(name = "account_id", nullable = false)
     private UUID accountId;
 
-    @Column(name = "initial_balance")
+    @Column(name = "initial_balance", nullable = false)
     private Integer initialBalance = 0;
 
-    @Column(name = "start_date")
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "end_date")
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     private Status status = Status.OPEN;
 
     @OneToMany(mappedBy = "billingCycle", cascade = {CascadeType.PERSIST, CascadeType.MERGE})

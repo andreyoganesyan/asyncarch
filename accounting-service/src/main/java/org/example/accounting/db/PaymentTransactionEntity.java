@@ -18,23 +18,31 @@ public class PaymentTransactionEntity {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "account_id")
+    @Column(name = "account_id", nullable = false)
     private UUID accountId;
 
-    @Column(name = "description")
+    @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "credit")
+    @Column(name = "credit", nullable = false)
     private Integer credit = 0;
 
-    @Column(name = "debit")
+    @Column(name = "debit", nullable = false)
     private Integer debit = 0;
 
-    @Column(name = "timestamp")
+    @Column(name = "timestamp", nullable = false)
     private Instant timestamp;
 
-    @ManyToOne
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private Type type;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "billing_cycle_id")
     private BillingCycleEntity billingCycle;
+
+    public enum Type {
+        INTERNAL_BALANCE_CHANGE, PAYOUT
+    }
 
 }
