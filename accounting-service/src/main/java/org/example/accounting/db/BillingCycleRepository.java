@@ -15,8 +15,8 @@ public interface BillingCycleRepository extends JpaRepository<BillingCycleEntity
     @Query("select b from BillingCycleEntity b where b.accountId = ?1 order by b.endDate desc limit 1")
     Optional<BillingCycleEntity> findLatestBillingCycle(UUID accountId);
 
-    @Query("select b from BillingCycleEntity b join fetch b.paymentTransactions where b.endDate = ?1 and b.status = 'OPEN'")
-    List<BillingCycleEntity> findOpenBillingCyclesWhichEndOn(LocalDate endDate);
+    @Query("select b from BillingCycleEntity b join fetch b.paymentTransactions where b.endDate <= ?1 and b.status = 'OPEN'")
+    List<BillingCycleEntity> findOpenBillingCyclesWhichEndBefore(LocalDate endDate);
 
 
 }

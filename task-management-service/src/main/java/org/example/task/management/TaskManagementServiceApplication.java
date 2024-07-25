@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @SpringBootApplication(exclude = UserDetailsServiceAutoConfiguration.class)
-@EnableMethodSecurity
 @EnableKafka
 @EnableKafkaRetryTopic
 @EnableScheduling
